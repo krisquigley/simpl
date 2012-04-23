@@ -4,4 +4,4 @@ if ! rvm list | grep ruby-1.9.3-p194 ; then
   rvm install 1.9.3-p194
 fi
 
-rvm use 1.9.3-p194@platformq_googl
+rvm use 1.9.3-p194@platformq_simpl
