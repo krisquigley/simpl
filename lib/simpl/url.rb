@@ -16,6 +16,8 @@ class Simpl
       @api_key = options[:api_key]
       # allows an instance-level override for the timeout
       @timeout = options[:timeout]
+      # allows an instance-level override for the proxy
+      @proxy = URI(options[:proxy]) if options[:proxy]
     end
   
     # returns: a string respresenting the shortened url
@@ -27,12 +29,19 @@ class Simpl
     private
     # processes the shortening of the full url
     def shorten
-      Timeout::timeout(timeout) do
-        # submit the url to Goo.gl
-        result = self.class.post("/urlshortener/v1/url?key=#{api_key}", {
+      request = {
           body:    { longUrl: url }.to_json,
           headers: { 'Content-Type' => 'application/json' }
-        })
+        }
+
+      request.merge!({  http_proxyaddr: proxy.host, 
+                        http_proxyport: proxy.port, 
+                        http_proxyuser: proxy.user, 
+                        http_proxypass: proxy.password }) if proxy
+
+      Timeout::timeout(timeout) do
+        # submit the url to Goo.gl
+        result = self.class.post("/urlshortener/v1/url?key=#{api_key}", request)
         # parse the JSON
         response = JSON.parse(result.body)
         # return the response id or the url
@@ -42,6 +51,10 @@ class Simpl
     rescue Timeout::Error, JSON::ParserError => e
       # just return the original url
       url
+    end
+
+    def proxy
+      @proxy || URI(ENV["QUOTAGUARDSTATIC_URL"])
     end
     
     def api_key
