@@ -79,6 +79,8 @@ class Simpl
                              refresh_token: ENV['GOOGL_REFRESH_TOKEN'],
                              grant_type:    "refresh_token"} }
 
+        result = self.class.post("/oauth2/v3/token", request)
+
         result.parsed_response["access_token"]
       end
     end
