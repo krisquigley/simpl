@@ -32,6 +32,7 @@ class Simpl
       request = {
           body:    { longUrl: url }.to_json,
           headers: { 'Content-Type' => 'application/json' }
+          query:   { key: api_key }
         }
 
       request.merge!({  http_proxyaddr: proxy.host, 
@@ -41,11 +42,9 @@ class Simpl
 
       Timeout::timeout(timeout) do
         # submit the url to Goo.gl
-        result = self.class.post("/urlshortener/v1/url?key=#{api_key}", request)
-        # parse the JSON
-        response = JSON.parse(result.body)
+        result = self.class.post("/urlshortener/v1/", request)
         # return the response id or the url
-        response['id'] || url
+        result.parsed_response["id"] || url
       end
     # if a problem occurs
     rescue Timeout::Error, JSON::ParserError => e
