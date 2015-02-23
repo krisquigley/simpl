@@ -49,7 +49,7 @@ class Simpl
     def shorten
       request = {
           body:    { longUrl: url }.to_json,
-          headers: { 'Content-Type' => 'application/json' }
+          headers: { 'Content-Type' => 'application/json' },
           query:   { key: api_key, 
                      access_token: access_token }
         }
