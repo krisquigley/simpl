@@ -19,6 +19,24 @@ class Simpl
       # allows an instance-level override for the proxy
       @proxy = URI(options[:proxy]) if options[:proxy]
     end
+
+    # Returns oauth authentication url, whereby the user can get their 'code'
+    def authenticate_url
+      "https://accounts.google.com/o/oauth2/auth?scope=https://www.googleapis.com/auth/urlshortener&response_type=code&client_id=#{ENV['GOOGL_CLIENT_ID']}&redirect_uri=#{ENV['GOOGL_REDIRECT_URI']}&access_type=offline&include_granted_scopes=true"
+    end
+
+    # Returns the access token and refresh_token in a hash
+    def request_token
+      request = { query: { code:          ENV['GOOGL_CODE'], 
+                           client_id:     ENV['GOOGL_CLIENT_ID'], 
+                           client_secret: ENV['GOOGL_CLIENT_SECRET'],
+                           redirect_uri:  ENV['GOOGL_REDIRECT_URI'],
+                           grant_type:    "authorization_code" } }
+
+      self.class.post("/oauth2/v3/token", request)
+
+      result.parsed_response
+    end
   
     # returns: a string respresenting the shortened url
     # note: may be still the full url should a problem occur
@@ -32,7 +50,8 @@ class Simpl
       request = {
           body:    { longUrl: url }.to_json,
           headers: { 'Content-Type' => 'application/json' }
-          query:   { key: api_key, access_token: access_token }
+          query:   { key: api_key, 
+                     access_token: access_token }
         }
 
       request.merge!({  http_proxyaddr: proxy.host, 
@@ -52,14 +71,15 @@ class Simpl
       url
     end
 
+    # Generates a new access_token through the use of the refresh_token
     def access_token
       Rails.cache.fetch("googl_access_token", expires_in: 50.minutes) do 
-        options = { query: { client_id:     ENV['GOOGL_CLIENT_ID'],
+        request = { query: { client_id:     ENV['GOOGL_CLIENT_ID'],
                              client_secret: ENV['GOOGL_CLIENT_SECRET'],
                              refresh_token: ENV['GOOGL_REFRESH_TOKEN'],
                              grant_type:    "refresh_token"} }
 
-        result = self.class.post("/oauth2/v3/token", options)
+        result = self.class.post("/oauth2/v3/token", request)
 
         result.parsed_response["access_token"]
       end
