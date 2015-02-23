@@ -61,7 +61,7 @@ class Simpl
 
       Timeout::timeout(timeout) do
         # submit the url to Goo.gl
-        result = self.class.post("/urlshortener/v1/", request)
+        result = self.class.post("/urlshortener/v1/url", request)
         # return the response id or the url
         result.parsed_response["id"] || url
       end
@@ -78,8 +78,6 @@ class Simpl
                              client_secret: ENV['GOOGL_CLIENT_SECRET'],
                              refresh_token: ENV['GOOGL_REFRESH_TOKEN'],
                              grant_type:    "refresh_token"} }
-
-        result = self.class.post("/oauth2/v3/token", request)
 
         result.parsed_response["access_token"]
       end
