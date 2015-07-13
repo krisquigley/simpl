@@ -33,7 +33,7 @@ class Simpl
                            redirect_uri:  ENV['GOOGL_REDIRECT_URI'],
                            grant_type:    "authorization_code" } }
 
-      self.class.post("/oauth2/v3/token", request)
+      result = self.class.post("/oauth2/v3/token", request)
 
       result.parsed_response
     end
