@@ -22,7 +22,7 @@ class Simpl
 
     # Returns oauth authentication url, whereby the user can get their 'code'
     def authenticate_url
-      "https://accounts.google.com/o/oauth2/auth?scope=https://www.googleapis.com/auth/urlshortener&response_type=code&client_id=#{ENV['GOOGL_CLIENT_ID']}&redirect_uri=#{ENV['GOOGL_REDIRECT_URI']}&access_type=offline&include_granted_scopes=true"
+      "https://accounts.google.com/o/oauth2/auth?scope=https://www.googleapis.com/auth/urlshortener&response_type=code&client_id=#{ENV['GOOGL_CLIENT_ID']}&redirect_uri=#{ENV['GOOGL_REDIRECT_URI']}&access_type=offline&include_granted_scopes=true&approval_prompt=force"
     end
 
     # Returns the access token and refresh_token in a hash
@@ -94,7 +94,7 @@ class Simpl
     end
 
     def timeout
-      @timeout || Simpl.timeout || 10
+      @timeout || Simpl.timeout || 300
     end
   end
 end
